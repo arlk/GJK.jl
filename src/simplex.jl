@@ -1,12 +1,13 @@
-function iszero(u::AbstractArray{T,1}) where {T<:AbstractFloat}
 function proj(u::AbstractArray{T,1}, v::AbstractArray{T,1}) where {T<:AbstractFloat}
     (u ⋅ v)/(u ⋅ u)*u
 end
+
+function iszero(u::AbstractArray{<:AbstractFloat,1})
     # Maybe check against the user-defined tolerance
     all(u .== 0.0)
 end
 
-function findsimplex(simplex::AbstractArray{T, 2}) where {T<:AbstractFloat}
+function findsimplex(simplex::AbstractArray{<:AbstractFloat, 2})
     if size(simplex, 2) == 2
         findline(simplex, [1, 2])
     elseif size(simplex, 2) == 3
@@ -16,7 +17,7 @@ function findsimplex(simplex::AbstractArray{T, 2}) where {T<:AbstractFloat}
     end
 end
 
-function findline(simplex::AbstractArray{T, 2}, idx::Array{<:Signed, 1}) where {T<:AbstractFloat}
+function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1})
     AB = simplex[:, 2] - simplex[:, 1]
     AO = simplex[:, 2]
     if AB ⋅ AO > 0
@@ -25,11 +26,11 @@ function findline(simplex::AbstractArray{T, 2}, idx::Array{<:Signed, 1}) where {
         idx = idx[[2]]
         dir = -AO
     end
-    colliding = iszero(dir)
-    idx, dir, colliding
+    collision = iszero(dir)
+    idx, dir, collision
 end
 
-function findtriangle(simplex::AbstractArray{T, 2}, idx::Array{<:Signed, 1}) where {T<:AbstractFloat}
+function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1})
     AB = simplex[:, 3] - simplex[:, 2]
     AC = simplex[:, 3] - simplex[:, 1]
     BC = simplex[:, 2] - simplex[:, 1]
@@ -38,8 +39,8 @@ function findtriangle(simplex::AbstractArray{T, 2}, idx::Array{<:Signed, 1}) whe
         if AC ⋅ AO > 0
             idx = idx[[1, 3]]
             dir = proj(AC, AO) - AO
-            colliding = iszero(dir)
-            idx, dir, colliding
+            collision = iszero(dir)
+            idx, dir, collision
         else
             findline(simplex[:, [2, 3]], idx[[2, 3]])
         end
@@ -56,13 +57,13 @@ function findtriangle(simplex::AbstractArray{T, 2}, idx::Array{<:Signed, 1}) whe
                 idx = idx[[2, 1, 3]]
                 dir = -proj(-ABC, AO)
             end
-            colliding = iszero(dir)
-            idx, dir, colliding
+            collision = iszero(dir)
+            idx, dir, collision
         end
     end
 end
 
-function findtetrahedron(simplex::AbstractArray{T, 2}, idx::Array{<:Signed, 1}) where {T<:AbstractFloat}
+function findtetrahedron(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1})
     AB = simplex[:, 4] - simplex[:, 3]
     AC = simplex[:, 4] - simplex[:, 2]
     AD = simplex[:, 4] - simplex[:, 1]
@@ -81,17 +82,15 @@ function findtetrahedron(simplex::AbstractArray{T, 2}, idx::Array{<:Signed, 1}) 
     end
 end
 
-function findcombination(simplex::AbstractArray{T, N}, vec::AbstractArray{T, 1}) where {T<:Float64, N}
-    if size(simplex, 2) == 1
-        λ = 1.0
-    elseif size(simplex, 2) == 2
+function findcombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
+    if size(simplex, 2) == 2
         findlinecombination(simplex, vec)
     elseif size(simplex, 2) == 3
         findtrianglecombination(simplex, vec)
     end
 end
 
-function findlinecombination(simplex::AbstractArray{T, N}, vec::AbstractArray{T, 1}) where {T<:Float64, N}
+function findlinecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
     AV = simplex[:, 2] - vec
     AB = simplex[:, 2] - simplex[:, 1]
     λ = (AB ⋅ AV)/(AB ⋅ AB)
@@ -99,7 +98,7 @@ function findlinecombination(simplex::AbstractArray{T, N}, vec::AbstractArray{T,
     [λ; 1.0 - λ]
 end
 
-function findtrianglecombination(simplex::AbstractArray{T, N}, vec::AbstractArray{T, 1}) where {T<:Float64, N}
+function findtrianglecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
     AO = simplex[:, 3]
     AV = simplex[:, 3] - vec
     AB = simplex[:, 3] - simplex[:, 2]
