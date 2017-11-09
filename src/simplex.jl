@@ -1,4 +1,7 @@
 function iszero(u::AbstractArray{T,1}) where {T<:AbstractFloat}
+function proj(u::AbstractArray{T,1}, v::AbstractArray{T,1}) where {T<:AbstractFloat}
+    (u ⋅ v)/(u ⋅ u)*u
+end
     # Maybe check against the user-defined tolerance
     all(u .== 0.0)
 end
