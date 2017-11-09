@@ -4,7 +4,7 @@ end
 
 using GeometryTypes: HyperRectangle
 function support(rect::HyperRectangle{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat, N}
-    rect.widths.*normalize(dir, Inf)/2.0 + rect.origin
+    rect.widths.*normalize(dir./rect.widths, Inf)/2.0 + rect.origin
 end
 
 using GeometryTypes: HyperCube
