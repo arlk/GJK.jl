@@ -14,5 +14,5 @@ end
 
 using GeometryTypes: HyperSphere
 function support(sphere::HyperSphere{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat, N}
-    sphere.center + sphere.r*dir/norm(dir)
+    sphere.center + sphere.r*normalize(dir, 2)
 end
