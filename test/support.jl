@@ -1,6 +1,6 @@
 using GeometryTypes: Point, Vec
 using GeometryTypes: HyperSphere, HyperRectangle, HyperCube
-using Collide: support
+using GJK: support
 
 @testset "support mapping (2D)" begin
     @testset "array of vertices" begin

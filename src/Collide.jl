@@ -1,4 +1,4 @@
-module Collide
+module GJK
 
 export gjk
 

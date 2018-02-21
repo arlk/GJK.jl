@@ -1,6 +1,6 @@
-using Collide
+using GJK
 using Base.Test
 
-@testset "Collide" begin
+@testset "GJK" begin
     include("support.jl")
 end

@@ -1,4 +1,4 @@
-The Collide.jl package is licensed under the MIT "Expat" License:
+The GJK.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2018: Arun Lakshmanan.
 >
