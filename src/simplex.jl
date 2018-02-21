@@ -2,11 +2,6 @@ function proj(u::AbstractArray{T,1}, v::AbstractArray{T,1}) where {T<:AbstractFl
     (u ⋅ v)/(u ⋅ u)*u
 end
 
-function iszero(u::AbstractArray{<:AbstractFloat,1})
-    # Maybe check against the user-defined tolerance
-    all(u .== 0.0)
-end
-
 function findsimplex(simplex::AbstractArray{<:AbstractFloat, 2})
     if size(simplex, 2) == 2
         findline(simplex, [1, 2])
@@ -26,7 +21,7 @@ function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signe
         idx = idx[[2]]
         dir = -AO
     end
-    collision = iszero(dir)
+    collision = all(dir .== 0.0)
     idx, dir, collision
 end
 
@@ -39,7 +34,7 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
         if AC ⋅ AO > 0
             idx = idx[[1, 3]]
             dir = proj(AC, AO) - AO
-            collision = iszero(dir)
+            collision = all(dir .== 0.0)
             idx, dir, collision
         else
             findline(simplex[:, [2, 3]], idx[[2, 3]])
@@ -57,7 +52,7 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
                 idx = idx[[2, 1, 3]]
                 dir = -proj(-ABC, AO)
             end
-            collision = iszero(dir)
+            collision = all(dir .== 0.0)
             idx, dir, collision
         end
     end
