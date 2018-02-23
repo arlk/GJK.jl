@@ -2,7 +2,7 @@ using GeometryTypes: Point, Vec
 using GeometryTypes: HyperSphere, HyperRectangle, HyperCube
 using GJK: support
 
-@testset "support mapping" begin
+@testset "support functions" begin
     @testset "array of vertices" begin
         vertices = [3.0 5.0 7.0; 13.0 15.0 11.0]
         dir = [1.0, 2.0]
@@ -23,7 +23,7 @@ using GJK: support
         @test all(support(vertices, dir) .≈ [7.0, 11.0, 3.0])
         dir = [-1.0, -1.0, -2.0]
         @test all(support(vertices, dir) .≈ [3.0, 13.0, 1.0])
-    end
+    end # array of vertices
 
     @testset "circle" begin
         circle = HyperSphere(Point(1.0, 2.0), 10.0)
@@ -45,7 +45,7 @@ using GJK: support
         @test all(support(circle, dir) .≈ [5.08248290463863, -2.08248290463863, -5.16496580927726])
         dir = [-1.0, -1.0, -2.0]
         @test all(support(circle, dir) .≈ [-3.08248290463863, -2.08248290463863, -5.16496580927726])
-    end
+    end # circle
 
     @testset "rectangle" begin
         rectangle = HyperRectangle(Vec(1.0, 2.0), Vec(10.0, 20.0))
@@ -67,7 +67,7 @@ using GJK: support
         @test all(support(rectangle, dir) .≈ [6.0, -8.0, -12.0])
         dir = [-1.0, -1.0, -2.0]
         @test all(support(rectangle, dir) .≈ [-4.0, -8.0, -12.0])
-    end
+    end # rectangle
 
     @testset "cube" begin
         cube = HyperCube(Vec(1.0, 2.0), 10.0)
@@ -89,5 +89,5 @@ using GJK: support
         @test all(support(cube, dir) .≈ [6.0, -3.0, -2.0])
         dir = [-1.0, -1.0, -2.0]
         @test all(support(cube, dir) .≈ [-4.0, -3.0, -2.0])
-    end
-end
+    end # cube
+end # support functions
