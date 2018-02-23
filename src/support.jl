@@ -4,12 +4,14 @@ end
 
 using GeometryTypes: HyperRectangle
 function support(rect::HyperRectangle{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat, N}
-    rect.widths.*normalize(dir./rect.widths, Inf)/2.0 + rect.origin
+    normvec = [if x > 0 1.0 else -1.0 end for x in normalize(dir./rect.widths, Inf)]
+    rect.widths.*normvec/2.0 + rect.origin
 end
 
 using GeometryTypes: HyperCube
 function support(cube::HyperCube{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat, N}
-    cube.width*normalize(dir, Inf)/2.0 + cube.origin
+    normvec = [if x > 0 1.0 else -1.0 end for x in normalize(dir, Inf)]
+    cube.width.*normvec/2.0 + cube.origin
 end
 
 using GeometryTypes: HyperSphere
