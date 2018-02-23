@@ -21,7 +21,7 @@ function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signe
         idx = idx[[2]]
         dir = -AO
     end
-    collision = all(dir .== 0.0)
+    collision = all(dir .≈ 0.0)
     idx, dir, collision
 end
 
@@ -34,7 +34,7 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
         if AC ⋅ AO > 0
             idx = idx[[1, 3]]
             dir = proj(AC, AO) - AO
-            collision = all(dir .== 0.0)
+            collision = all(dir .≈ 0.0)
             idx, dir, collision
         else
             findline(simplex[:, [2, 3]], idx[[2, 3]])
@@ -52,7 +52,7 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
                 idx = idx[[2, 1, 3]]
                 dir = -proj(-ABC, AO)
             end
-            collision = all(dir .== 0.0)
+            collision = all(dir .≈ 0.0)
             idx, dir, collision
         end
     end
