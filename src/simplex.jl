@@ -97,7 +97,7 @@ function findlinecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T,
 end
 
 function findtrianglecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
-    AO = -simplex[:, 3]
+    OA = -simplex[:, 3]
     AV = simplex[:, 3] - vec
     AB = simplex[:, 3] - simplex[:, 2]
     AC = simplex[:, 3] - simplex[:, 1]
