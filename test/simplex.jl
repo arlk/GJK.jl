@@ -183,14 +183,14 @@ using GJK: findcombination
     end # find line combination
 
     @testset "find triangle combination" begin
-        spx = [1.0 0.0 -1.0; 2.0 3.0 1.0; 2.0 -3.0 1.0]
-        vec = [0.0, 2.0, 0.0]
+        spx = [1.0 1.0 -1.0; 1.0 2.0 1.0; 2.0 2.0 1.0]
+        vec = [1.0, 4.0, 5.0]/3
         @test all(findcombination(spx, vec) .≈ ones(3)/3.0)
         vec = [-3.0, 0.0, 0.0]
         @test all(findcombination(spx, vec) .≈ [0.0, 0.0, 1.0])
-        vec = [-0.5, 2.0, -1.0]
+        vec = [0.5, 0.0, 0.0]
+        @test all(findcombination(spx, vec) .≈ [0.4, 0.0, 0.6])
+        vec = [0.0, 2.0, 1.0]
         @test all(findcombination(spx, vec) .≈ [0.0, 0.5, 0.5])
-        vec = [0.0, 1.5, 1.5]
-        @test all(findcombination(spx, vec) .≈ [0.5, 0.0, 0.5])
     end # find triangle combination
 end # find combination
