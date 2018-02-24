@@ -72,10 +72,10 @@ function findtetrahedron(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{
     BO = simplex[:, 3]
     if (AB × AC) ⋅ AO > 0
         findtriangle(simplex[:, [2, 3, 4]], idx[[2, 3, 4]])
-    elseif (AC × AD) ⋅ AO > 0
-        findtriangle(simplex[:, [1, 2, 4]], idx[[1, 2, 4]])
     elseif (AD × AB) ⋅ AO > 0
         findtriangle(simplex[:, [3, 1, 4]], idx[[3, 1, 4]])
+    elseif (AC × AD) ⋅ AO > 0
+        findtriangle(simplex[:, [1, 2, 4]], idx[[1, 2, 4]])
     else
         idx, AO, true
     end
