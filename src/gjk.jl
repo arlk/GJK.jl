@@ -2,10 +2,11 @@ function gjk(p::Any, q::Any, dir::AbstractArray{<:Float64, 1}; atol::AbstractFlo
     psimplex = support(p, dir); qsimplex = support(q, -dir);
     simplex = psimplex - qsimplex
     dir = -simplex
-    result = Result()
-    if isapprox(sum(abs2, dir); atol = atol)
-        result = Result(true)
+    if isapprox(sum(abs2, dir), 0.0; atol = atol)
+        return Result(true)
     end
+
+    result = Result()
 
     for i = 1:max_iterations
         ps = support(p, dir); qs = support(q, -dir);
