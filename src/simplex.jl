@@ -87,33 +87,33 @@ function findcombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1})
 end
 
 function findlinecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
-    AV = simplex[:, 2] - vec
-    AB = simplex[:, 2] - simplex[:, 1]
+    AV = vec - simplex[:, 2]
+    AB = simplex[:, 1] - simplex[:, 2]
     λ = (AB ⋅ AV)/(AB ⋅ AB)
     λ = λ < 0 ? 0 : λ
     [λ; 1.0 - λ]
 end
 
 function findtrianglecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
-    OA = -simplex[:, 3]
-    AV = simplex[:, 3] - vec
-    AB = simplex[:, 3] - simplex[:, 2]
-    AC = simplex[:, 3] - simplex[:, 1]
-    BC = simplex[:, 2] - simplex[:, 1]
+    AO = -simplex[:, 3]
+    AV = vec - simplex[:, 3]
+    AB = simplex[:, 2] - simplex[:, 3]
+    AC = simplex[:, 1] - simplex[:, 3]
+    BC = simplex[:, 1] - simplex[:, 2]
 
     if (AC ⋅ AB * BC - AC ⋅ BC * AB) ⋅ AV > 0
         if AC ⋅ AV > 0
-            ptAC = (proj(AC, AV) - OA)
-            λAC = findlinecombination(simplex[:, [1, 3]], ptAC)
+            dir = AO - proj(AC, AV)
+            λAC = findlinecombination(simplex[:, [1, 3]], -dir)
             [λAC[1]; 0.0; λAC[2]]
         else
-            ptAB = (proj(AB, AV) - OA)
-            λAB = findlinecombination(simplex[:, [2, 3]], ptAB)
+            dir = AO - proj(AB, AV)
+            λAB = findlinecombination(simplex[:, [2, 3]], -dir)
             [0.0; λAB[1]; λAB[2]]
         end
     elseif (AB ⋅ BC * AB - AB ⋅ AB * BC) ⋅ AV > 0
-        ptAB = (proj(AB, AV) - OA)
-        λAB = findlinecombination(simplex[:, [2, 3]], ptAB)
+        dir = AO - proj(AB, AV)
+        λAB = findlinecombination(simplex[:, [2, 3]], -dir)
         [0.0; λAB[1]; λAB[2]]
     else
         sABC = [AC AB]
