@@ -42,7 +42,11 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
     elseif (AB ⋅ BC * AB - AB ⋅ AB * BC) ⋅ AO > 0
         findline(simplex[:, [2, 3]], idx[[2, 3]])
     else
-        if size(simplex, 1) == 2
+        if isapprox(norm(AO), 0; atol=1e-8)
+            idx, AO, true
+        elseif isapprox(norm(proj(AB, AC) - AC), 0; atol = 1e-8)
+            findline(simplex[:, [2, 3]], idx[[2, 3]])
+        elseif size(simplex, 1) == 2
             idx, AO, true
         else
             ABC = AB × BC
