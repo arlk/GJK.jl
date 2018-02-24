@@ -2,17 +2,17 @@ function proj(u::AbstractArray{T,1}, v::AbstractArray{T,1}) where {T<:AbstractFl
     (u ⋅ v)/(u ⋅ u)*u
 end
 
-function findsimplex(simplex::AbstractArray{<:AbstractFloat, 2})
+function findsimplex(simplex::AbstractArray{<:AbstractFloat, 2}; atol::AbstractFloat=1e-10)
     if size(simplex, 2) == 2
-        findline(simplex, [1, 2])
+        findline(simplex, [1, 2]; atol = atol)
     elseif size(simplex, 2) == 3
-        findtriangle(simplex, [1, 2, 3])
+        findtriangle(simplex, [1, 2, 3]; atol = atol)
     elseif size(simplex, 2) == 4
-        findtetrahedron(simplex, [1, 2, 3, 4])
+        findtetrahedron(simplex, [1, 2, 3, 4]; atol = atol)
     end
 end
 
-function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1})
+function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
     AB = simplex[:, 1] - simplex[:, 2]
     AO = -simplex[:, 2]
     if AB ⋅ AO > 0
@@ -21,11 +21,11 @@ function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signe
         idx = idx[[2]]
         dir = AO
     end
-    collision = isapprox(norm(dir), 0.0; atol = 1e-8)
+    collision = isapprox(sum(abs2, dir), 0.0; atol = atol)
     idx, dir, collision
 end
 
-function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1})
+function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
     AB = simplex[:, 2] - simplex[:, 3]
     AC = simplex[:, 1] - simplex[:, 3]
     BC = simplex[:, 1] - simplex[:, 2]
@@ -34,7 +34,7 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
         if AC ⋅ AO > 0
             idx = idx[[1, 3]]
             dir = AO - proj(AC, AO)
-            collision = isapprox(norm(dir), 0.0; atol = 1e-8)
+            collision = isapprox(sum(abs2, dir), 0.0; atol = atol)
             idx, dir, collision
         else
             findline(simplex[:, [2, 3]], idx[[2, 3]])
@@ -42,9 +42,9 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
     elseif (AB ⋅ BC * AB - AB ⋅ AB * BC) ⋅ AO > 0
         findline(simplex[:, [2, 3]], idx[[2, 3]])
     else
-        if isapprox(norm(AO), 0.0; atol=1e-8)
+        if isapprox(sum(abs2, AO), 0.0; atol = atol)
             idx, AO, true
-        elseif isapprox(norm(AC - proj(AB, AC)), 0.0; atol = 1e-8)
+        elseif isapprox(sum(abs2, AC - proj(AB, AC)), 0.0; atol = atol)
             findline(simplex[:, [2, 3]], idx[[2, 3]])
         elseif size(simplex, 1) == 2
             idx, AO, true
@@ -54,13 +54,13 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
             if ABC ⋅ AO > 0
                 idx = idx[[2, 1, 3]]
             end
-            collision = isapprox(norm(dir), 0.0; atol = 1e-8)
+            collision = isapprox(sum(abs2, dir), 0.0; atol = atol)
             idx, dir, collision
         end
     end
 end
 
-function findtetrahedron(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1})
+function findtetrahedron(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
     AB = simplex[:, 3] - simplex[:, 4]
     AC = simplex[:, 2] - simplex[:, 4]
     AD = simplex[:, 1] - simplex[:, 4]
