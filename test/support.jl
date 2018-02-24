@@ -25,27 +25,27 @@ using GJK: support
         @test all(support(vertices, dir) .≈ [3.0, 13.0, 1.0])
     end # array of vertices
 
-    @testset "circle" begin
-        circle = HyperSphere(Point(1.0, 2.0), 10.0)
+    @testset "sphere" begin
+        sphere = HyperSphere(Point(1.0, 2.0), 10.0)
         dir = [1.0, 2.0]
-        @test all(support(circle, dir) .≈ [5.47213595499958, 10.94427190999916])
+        @test all(support(sphere, dir) .≈ [5.47213595499958, 10.94427190999916])
         dir = [-1.0, 2.0]
-        @test all(support(circle, dir) .≈ [-3.4721359549995796, 10.94427190999916])
+        @test all(support(sphere, dir) .≈ [-3.4721359549995796, 10.94427190999916])
         dir = [-1.0, -2.0]
-        @test all(support(circle, dir) .≈ [-3.4721359549995796, -6.944271909999159])
+        @test all(support(sphere, dir) .≈ [-3.4721359549995796, -6.944271909999159])
         dir = [1.0, -2.0]
-        @test all(support(circle, dir) .≈ [5.47213595499958, -6.944271909999159])
+        @test all(support(sphere, dir) .≈ [5.47213595499958, -6.944271909999159])
 
-        circle = HyperSphere(Point(1.0, 2.0, 3.0), 10.0)
+        sphere = HyperSphere(Point(1.0, 2.0, 3.0), 10.0)
         dir = [1.0, 1.0, 2.0]
-        @test all(support(circle, dir) .≈ [5.08248290463863, 6.08248290463863, 11.16496580927726])
+        @test all(support(sphere, dir) .≈ [5.08248290463863, 6.08248290463863, 11.16496580927726])
         dir = [1.0, 1.0, -2.0]
-        @test all(support(circle, dir) .≈ [5.08248290463863, 6.08248290463863, -5.16496580927726])
+        @test all(support(sphere, dir) .≈ [5.08248290463863, 6.08248290463863, -5.16496580927726])
         dir = [1.0, -1.0, -2.0]
-        @test all(support(circle, dir) .≈ [5.08248290463863, -2.08248290463863, -5.16496580927726])
+        @test all(support(sphere, dir) .≈ [5.08248290463863, -2.08248290463863, -5.16496580927726])
         dir = [-1.0, -1.0, -2.0]
-        @test all(support(circle, dir) .≈ [-3.08248290463863, -2.08248290463863, -5.16496580927726])
-    end # circle
+        @test all(support(sphere, dir) .≈ [-3.08248290463863, -2.08248290463863, -5.16496580927726])
+    end # sphere
 
     @testset "rectangle" begin
         rectangle = HyperRectangle(Vec(1.0, 2.0), Vec(10.0, 20.0))
