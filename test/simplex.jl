@@ -80,7 +80,7 @@ using GJK: findsimplex
         @test ret[3] == false
         spx = [1.0 -1.0 0.0; 2.0 1.0 1.0]
         ret = findsimplex(spx)
-        @test all(ret[1] .== [2, 3])
+        @test all(ret[1] .== [3])
         @test all(ret[2] .≈ [0.0, -1.0])
         @test ret[3] == false
 
@@ -150,10 +150,15 @@ using GJK: findsimplex
         @test all(ret[1] .== [2, 3, 4])
         @test all(ret[2] .≈ [0.0, 0.0, -1.0])
         @test ret[3] == false
-        spx = [0.0 1.0 -1.0 2.0; 3.0 2.0 1.0 2.0; 2.0 1.0 1.0 0.0]
+        spx = [-2.0 -2.0 2.0 1.0; -1.0 1.0 0.0 0.0; 1.0 1.0 1.0 0.0]
         ret = findsimplex(spx)
-        @test all(ret[1] .== [3, 4])
-        @test all(ret[2] .≈ [0.18181818181818166, -1.2727272727272727, -0.7272727272727273])
+        @test all(ret[1] .== [1, 2, 4])
+        @test all(ret[2] .≈ [-0.1, 0.0, -0.3])
+        @test ret[3] == false
+        spx = [-2.0 2.0 -2.0 1.0; -1.0 0.0 1.0 0.0; -1.0 -1.0 -1.0 0.0]
+        ret = findsimplex(spx)
+        @test all(ret[1] .== [3, 1, 4])
+        @test all(ret[2] .≈ [-0.1, 0.0, 0.3])
         @test ret[3] == false
 
         @testset "degeneracies" begin
