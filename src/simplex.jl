@@ -1,7 +1,19 @@
+"""
+    proj(u, v)
+
+Compute the vector projection of vector `v` onto vector `u`.
+"""
 function proj(u::AbstractArray{T,1}, v::AbstractArray{T,1}) where {T<:AbstractFloat}
     (u ⋅ v)/(u ⋅ u)*u
 end
 
+"""
+    findsimplex(simplex)
+
+Compute the search direction for a given simplex. Return filtered
+indices of the simplex to keep. Return a collision flag true if
+the origin was enclosed by the simplex.
+"""
 function findsimplex(simplex::AbstractArray{<:AbstractFloat, 2}; atol::AbstractFloat=1e-10)
     if size(simplex, 2) == 2
         findline(simplex, [1, 2]; atol = atol)
@@ -12,6 +24,12 @@ function findsimplex(simplex::AbstractArray{<:AbstractFloat, 2}; atol::AbstractF
     end
 end
 
+"""
+    findline(simplex)
+
+Called by `findsimplex()` to perform simplex operations
+for a line simplex defined by two points.
+"""
 function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
     AB = simplex[:, 1] - simplex[:, 2]
     AO = -simplex[:, 2]
@@ -25,6 +43,12 @@ function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signe
     idx, dir, collision
 end
 
+"""
+    findtriangle(simplex)
+
+Called by `findsimplex()` to perform simplex operations
+for a triangle simplex defined by three points.
+"""
 function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
     AB = simplex[:, 2] - simplex[:, 3]
     AC = simplex[:, 1] - simplex[:, 3]
@@ -60,6 +84,12 @@ function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:S
     end
 end
 
+"""
+    findtetrahedron(simplex)
+
+Called by `findsimplex()` to perform simplex operations
+for a tetrahedron simplex defined by four points.
+"""
 function findtetrahedron(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
     AB = simplex[:, 3] - simplex[:, 4]
     AC = simplex[:, 2] - simplex[:, 4]
@@ -78,6 +108,14 @@ function findtetrahedron(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{
     end
 end
 
+"""
+    findcombination(simplex, vec)
+
+Compute the coefficients of a convex combination of the given
+simplex vertices that equals the vector `vec`. Project `vec`
+onto the closest vertex or edge of the simplex if no solution
+is available.
+"""
 function findcombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
     if size(simplex, 2) == 2
         findlinecombination(simplex, vec)
@@ -86,6 +124,12 @@ function findcombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1})
     end
 end
 
+"""
+    findlinecombination(simplex, vec)
+
+Called by `findcombination()` to solve the convex combination
+problem for a line simplex defined by two points.
+"""
 function findlinecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
     AV = vec - simplex[:, 2]
     AB = simplex[:, 1] - simplex[:, 2]
@@ -94,6 +138,12 @@ function findlinecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T,
     [λ; 1.0 - λ]
 end
 
+"""
+    findtrianglecombination(simplex, vec)
+
+Called by `findcombination()` to solve the convex combination
+problem for a triangle simplex defined by three points.
+"""
 function findtrianglecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
     AO = -simplex[:, 3]
     AV = vec - simplex[:, 3]
