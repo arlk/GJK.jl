@@ -44,8 +44,9 @@ function gjk(p::Any, q::Any, dir::AbstractArray{<:Float64, 1}; atol::AbstractFlo
         if collision
             result = Result(true)
             break
-        elseif i == max_iterations
+        elseif i ≥ max_iterations
             warn("GJK has not terminated in $max_iterations iterations.")
+            break
         end
     end
 
