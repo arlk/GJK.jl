@@ -4,10 +4,13 @@
 
 ![](https://github.com/arlk/GJK.jl/raw/master/readme/collision2d.gif)
 
-GJK.jl is a pure Julia package, designed to provide a full set of tools to determine several different collision detection queries between convex polytopes in 2/3 dimensions. Note, that this is a work in progress and not everything has been implemented yet.
+GJK.jl implements the Gilber-Johnson-Keerthi Algorithm from their seminal paper on fast collision detection. The following query types are planned for two convex polytopes:
+ - Minimum distance computation (released)
+ - Tolerance verification (coming up)
 
-# Roadmap
-(TODO)
+The following queries will be explored at a later date (hopefully by June):
+ - Boolean collision detection (no update so far)
+ - Continous collision detection (no update so far)
 
 # Usage
 
@@ -31,3 +34,7 @@ Minimum distance computation in 2D:
 Minimum distance computation in 3D:
 
 ![](https://github.com/arlk/GJK.jl/raw/master/readme/collision3d.png)
+
+# References
+
+Gilbert, E. G., D. W. Johnson, and S. S. Keerthi. “A Fast Procedure for Computing the Distance between Complex Objects in Three-Dimensional Space.” IEEE Journal on Robotics and Automation 4, no. 2 (April 1988): 193–203. https://doi.org/10.1109/56.2083.
