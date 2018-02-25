@@ -12,7 +12,7 @@ The following queries will be explored at a later date (hopefully by June):
  - Boolean collision detection (no update so far)
  - Continous collision detection (no update so far)
 
-# Usage
+## Usage
 
 The package allows you to work with polytopes defined as an array of vertices (Using StaticArrays will considerably speed up the query evaluations), for example:
 ```julia
@@ -25,7 +25,7 @@ The collision detection query can be performed simply by providing the polytope 
 ret = gjk(polyA, polyB, SVector(0.0, 1.0))
 ```
 
-# Examples
+## Examples
 
 Minimum distance computation in 2D:
 
@@ -35,6 +35,10 @@ Minimum distance computation in 3D:
 
 ![](https://github.com/arlk/GJK.jl/raw/master/readme/collision3d.png)
 
-# References
+## Related Packages
+
+[EnhancedGJK.jl](https://github.com/rdeits/EnhancedGJK.jl)
+
+## References
 
 Gilbert, E. G., D. W. Johnson, and S. S. Keerthi. “A Fast Procedure for Computing the Distance between Complex Objects in Three-Dimensional Space.” IEEE Journal on Robotics and Automation 4, no. 2 (April 1988): 193–203. https://doi.org/10.1109/56.2083.
