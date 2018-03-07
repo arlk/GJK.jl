@@ -25,6 +25,14 @@ The collision detection query can be performed simply by providing the polytope 
 ret = gjk(polyA, polyB, SVector(0.0, 1.0))
 ```
 
+If you want to use your custom convex objects, you can do so by extending the support function as:
+```julia
+import GJK.support
+function GJK.support(obj::MyFancyShape{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat}
+  # do something
+end
+```
+
 ## Examples
 
 Minimum distance computation in 2D:
