@@ -1,3 +1,5 @@
+using StaticArrays
+
 """
     gjk(p, q, dir; atol=1e-10, max_iterations=1000)
 
@@ -17,29 +19,39 @@ GJK.Result{Array{Float64,2}}(true, false, [1.0 2.0; 1.0 1.0])
 ```
 """
 function gjk(p::Any, q::Any, dir::AbstractArray{<:Float64, 1}; atol::AbstractFloat=1e-10, max_iterations::Signed=1000)
-    psimplex = support(p, dir); qsimplex = support(q, -dir);
-    simplex = psimplex - qsimplex
-    dir = -simplex
+    idx = @MMatrix zeros(3, 3)
+    psimplex = @MMatrix zeros(2, 3)
+    qsimplex = @MMatrix zeros(2, 3)
+    simplex = @MMatrix zeros(2, 3)
+    psimplex[:,1] = support(p, dir); qsimplex[:,1] = support(q, -dir);
+    simplex[:] = psimplex - qsimplex
+    dir[:] = -simplex[:,1]
     if isapprox(sum(abs2, dir), 0.0; atol = atol)
         return Result(true)
     end
 
     result = Result()
+    sz = 1
 
     for i = 1:max_iterations
         ps = support(p, dir); qs = support(q, -dir);
         s = ps - qs
 
         if s ⋅ (-dir) ≥ sum(abs2, dir)*(1.0 - atol) || any(all(simplex .== s, 1))
-            λ = size(simplex, 2) == 1 || findcombination(simplex, -dir)
+            λ = MVector(1.,0.,0.)
+            findcombination(simplex, -dir, λ, sz)
             result = Result(false, hcat(psimplex*λ, qsimplex*λ))
             break
         end
 
-        psimplex = hcat(psimplex, ps); qsimplex = hcat(qsimplex, qs); simplex = hcat(simplex, s)
-        filtered, dir, collision = findsimplex(simplex; atol = atol)
-        psimplex = psimplex[:, filtered]; qsimplex = qsimplex[:, filtered];
-        simplex = simplex[:, filtered]
+        psimplex[:,sz+1] = ps
+        qsimplex[:,sz+1] = qs
+        simplex[:,sz+1] = s
+        idx[:] = 0
+        collision = findsimplex(simplex, idx, dir, sz+1)
+        sz = Int64(sum(idx))
+        psimplex[:] = psimplex*idx
+        qsimplex[:] = qsimplex*idx
 
         if collision
             result = Result(true)
