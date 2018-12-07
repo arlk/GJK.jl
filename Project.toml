@@ -1,6 +1,7 @@
-authors = ["Arun Lakshmanan <lakshma2@illinois.edu>"]
 name = "GJK"
 uuid = "15165d38-f9ec-11e8-073a-4d57d6588aa4"
+authors = ["Arun Lakshmanan <lakshma2@illinois.edu>"]
 version = "0.1.0"
 
 [deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
