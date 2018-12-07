@@ -2,6 +2,8 @@ module GJK
 
 export gjk
 
+import LinearAlgebra
+
 struct Result{T<:AbstractArray{<:AbstractFloat, 2}}
     status::Bool
     collision::Bool

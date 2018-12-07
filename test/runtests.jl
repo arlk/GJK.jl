@@ -1,5 +1,5 @@
 using GJK
-using Base.Test
+using Tests
 
 @testset "GJK" begin
     include("support.jl")

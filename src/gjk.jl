@@ -30,7 +30,7 @@ function gjk(p::Any, q::Any, dir::AbstractArray{<:Float64, 1}; atol::AbstractFlo
         ps = support(p, dir); qs = support(q, -dir);
         s = ps - qs
 
-        if s ⋅ (-dir) ≥ sum(abs2, dir)*(1.0 - atol) || any(all(simplex .== s, 1))
+        if s ⋅ (-dir) ≥ sum(abs2, dir)*(1.0 - atol) || any(all(simplex .== s, dims=1))
             λ = size(simplex, 2) == 1 || findcombination(simplex, -dir)
             result = Result(false, hcat(psimplex*λ, qsimplex*λ))
             break
