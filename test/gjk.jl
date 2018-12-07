@@ -4,16 +4,16 @@ import GJK.support
 using GeometryTypes: HyperSphere, HyperRectangle, HyperCube
 function GJK.support(rect::HyperRectangle{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat, N}
     normvec = [if x > 0 1.0 else -1.0 end for x in normalize(dir./rect.widths, Inf)]
-    rect.widths.*normvec/2.0 + rect.origin
+    Vector(rect.widths.*normvec/2.0 + rect.origin)
 end
 
 function GJK.support(cube::HyperCube{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat, N}
     normvec = [if x > 0 1.0 else -1.0 end for x in normalize(dir, Inf)]
-    cube.width.*normvec/2.0 + cube.origin
+    Vector(cube.width.*normvec/2.0 + cube.origin)
 end
 
 function GJK.support(sphere::HyperSphere{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat, N}
-    sphere.center + sphere.r*normalize(dir, 2)
+    Vector(sphere.center + sphere.r*normalize(dir, 2))
 end
 
 @testset "gjk (2D)" begin

@@ -21,10 +21,10 @@ function gjk(p::Any, q::Any, dir::AbstractArray{<:Float64, 1}; atol::AbstractFlo
     simplex = psimplex - qsimplex
     dir = -simplex
     if isapprox(sum(abs2, dir), 0.0; atol = atol)
-        return Result(true)
+        return Result(true, dir)
     end
 
-    result = Result()
+    result = Result(dir)
 
     for i = 1:max_iterations
         ps = support(p, dir); qs = support(q, -dir);
@@ -42,7 +42,7 @@ function gjk(p::Any, q::Any, dir::AbstractArray{<:Float64, 1}; atol::AbstractFlo
         simplex = simplex[:, filtered]
 
         if collision
-            result = Result(true)
+            result = Result(true, dir)
             break
         elseif i ≥ max_iterations
             warn("GJK has not terminated in $max_iterations iterations.")

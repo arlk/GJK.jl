@@ -36,29 +36,29 @@ using GJK: findsimplex
         @test ret[3] == false
 
         @testset "degeneracies" begin
-            rvec = rand(2, 1) + 1.0
+            rvec = rand(2, 1) .+ 1.0
             spx = [rvec -rvec]
             ret = findsimplex(spx)
             @test ret[3] .== true
-            rvec = rand(2, 1) + 1.0
-            spx = [rvec zeros(rvec)]
+            rvec = rand(2, 1) .+ 1.0
+            spx = [rvec zero(rvec)]
             ret = findsimplex(spx)
             @test ret[3] .== true
-            rvec = rand(2, 1) + 1.0
-            spx = [zeros(rvec) rvec]
+            rvec = rand(2, 1) .+ 1.0
+            spx = [zero(rvec) rvec]
             ret = findsimplex(spx)
             @test ret[3] .== true
 
-            rvec = rand(3, 1) + 1.0
+            rvec = rand(3, 1) .+ 1.0
             spx = [rvec -rvec]
             ret = findsimplex(spx)
             @test ret[3] .== true
-            rvec = rand(3, 1) + 1.0
-            spx = [rvec zeros(rvec)]
+            rvec = rand(3, 1) .+ 1.0
+            spx = [rvec zero(rvec)]
             ret = findsimplex(spx)
             @test ret[3] .== true
-            rvec = rand(3, 1) + 1.0
-            spx = [zeros(rvec) rvec]
+            rvec = rand(3, 1) .+ 1.0
+            spx = [zero(rvec) rvec]
             ret = findsimplex(spx)
             @test ret[3] .== true
         end # degneracies

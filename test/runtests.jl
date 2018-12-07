@@ -1,5 +1,6 @@
 using GJK
-using Tests
+using Test
+using LinearAlgebra
 
 @testset "GJK" begin
     include("support.jl")

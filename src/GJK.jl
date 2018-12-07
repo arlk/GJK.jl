@@ -2,7 +2,7 @@ module GJK
 
 export gjk
 
-import LinearAlgebra
+using LinearAlgebra
 
 struct Result{T<:AbstractArray{<:AbstractFloat, 2}}
     status::Bool
@@ -10,8 +10,8 @@ struct Result{T<:AbstractArray{<:AbstractFloat, 2}}
     contact::T
 end
 
-Result() = Result(false, false, Array{Float64, 2}(0, 0))
-Result(res::Bool) = Result(true, res, Array{Float64, 2}(0, 0))
+Result(dir::AbstractVector) = Result(false, false, Array{Float64, 2}(undef, length(dir), 2))
+Result(res::Bool, dir::AbstractVector) = Result(true, res, Array{Float64, 2}(undef, length(dir), 2))
 Result(res::Bool, arr::AbstractArray{<:AbstractFloat, 2}) = Result(true, res, arr)
 
 include("support.jl")
