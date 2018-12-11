@@ -3,7 +3,7 @@
 
 Compute the vector projection of vector `v` onto vector `u`.
 """
-function proj(u::AbstractArray{T,1}, v::AbstractArray{T,1}) where {T<:AbstractFloat}
+function proj(u::AbstractVector, v::AbstractVector)
     (u ⋅ v)/(u ⋅ u)*u
 end
 
@@ -14,83 +14,65 @@ Compute the search direction for a given simplex. Return filtered
 indices of the simplex to keep. Return a collision flag true if
 the origin was enclosed by the simplex.
 """
-function findsimplex(simplex::AbstractArray{<:AbstractFloat, 2}; atol::AbstractFloat=1e-10)
-    if size(simplex, 2) == 2
-        findline(simplex, [1, 2]; atol = atol)
-    elseif size(simplex, 2) == 3
-        findtriangle(simplex, [1, 2, 3]; atol = atol)
-    elseif size(simplex, 2) == 4
-        findtetrahedron(simplex, [1, 2, 3, 4]; atol = atol)
-    end
-end
-
-"""
-    findline(simplex)
-
-Called by `findsimplex()` to perform simplex operations
-for a line simplex defined by two points.
-"""
-function findline(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
+function findsimplex(psimplex::SMatrix{N, 2}, qsimplex::SMatrix{N, 2}) where {N}
+    simplex = psimplex - qsimplex
     AB = simplex[:, 1] - simplex[:, 2]
     AO = -simplex[:, 2]
     if AB ⋅ AO > 0
         dir = AO - proj(AB, AO)
+        collision = isapprox(sum(abs2, dir), 0.0)
+        return psimplex, qsimplex, dir, collision
     else
-        idx = idx[[2]]
         dir = AO
+        collision = isapprox(sum(abs2, dir), 0.0)
+        return SMatrix{N, 1}(psimplex[:, 2]), SMatrix{N, 1}(qsimplex[:, 2]), dir, collision
     end
-    collision = isapprox(sum(abs2, dir), 0.0; atol = atol)
-    idx, dir, collision
 end
 
-"""
-    findtriangle(simplex)
-
-Called by `findsimplex()` to perform simplex operations
-for a triangle simplex defined by three points.
-"""
-function findtriangle(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
+function findsimplex(psimplex::SMatrix{N, 3}, qsimplex::SMatrix{N, 3}) where {N}
+    simplex = psimplex - qsimplex
     AB = simplex[:, 2] - simplex[:, 3]
     AC = simplex[:, 1] - simplex[:, 3]
     BC = simplex[:, 1] - simplex[:, 2]
     AO = -simplex[:, 3]
     if (AC ⋅ AB * BC - AC ⋅ BC * AB) ⋅ AO > 0
         if AC ⋅ AO > 0
-            idx = idx[[1, 3]]
+            idx = SMatrix{3, 2}(1, 0, 0, 0, 0, 1)
             dir = AO - proj(AC, AO)
-            collision = isapprox(sum(abs2, dir), 0.0; atol = atol)
-            idx, dir, collision
+            collision = isapprox(sum(abs2, dir), 0.0)
+            return psimplex*idx, qsimplex*idx, dir, collision
         else
-            findline(simplex[:, [2, 3]], idx[[2, 3]])
+            idx = SMatrix{3, 2}(0, 0, 1, 0, 0, 1)
+            return findsimplex(psimplex*idx, qsimplex*idx)
         end
     elseif (AB ⋅ BC * AB - AB ⋅ AB * BC) ⋅ AO > 0
-        findline(simplex[:, [2, 3]], idx[[2, 3]])
+        idx = SMatrix{3, 2}(0, 0, 1, 0, 0, 1)
+        return findsimplex(psimplex*idx, qsimplex*idx)
     else
-        if isapprox(sum(abs2, AO), 0.0; atol = atol)
-            idx, AO, true
-        elseif isapprox(sum(abs2, AC - proj(AB, AC)), 0.0; atol = atol)
-            findline(simplex[:, [2, 3]], idx[[2, 3]])
-        elseif size(simplex, 1) == 2
-            idx, AO, true
+        if isapprox(sum(abs2, AO), 0.0)
+            return psimplex, qsimplex, AO, true
+        elseif isapprox(sum(abs2, AC - proj(AB, AC)), 0.0)
+            idx = SMatrix{3, 2}(0, 0, 1, 0, 0, 1)
+            return findsimplex(psimplex*idx, qsimplex*idx)
+        elseif N == 2
+            return psimplex, qsimplex, AO, true
         else
             ABC = AB × BC
             dir = proj(ABC, AO)
             if ABC ⋅ AO > 0
-                idx = idx[[2, 1, 3]]
+                idx = SMatrix{3, 3}(0, 1, 0, 1, 0, 0, 0, 0, 1)
+                collision = isapprox(sum(abs2, dir), 0.0)
+                return psimplex*idx, qsimplex*idx, dir, collision
+            else
+                collision = isapprox(sum(abs2, dir), 0.0)
+                return psimplex, qsimplex, dir, collision
             end
-            collision = isapprox(sum(abs2, dir), 0.0; atol = atol)
-            idx, dir, collision
         end
     end
 end
 
-"""
-    findtetrahedron(simplex)
-
-Called by `findsimplex()` to perform simplex operations
-for a tetrahedron simplex defined by four points.
-"""
-function findtetrahedron(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{<:Signed, 1}; atol::AbstractFloat=1e-10)
+function findsimplex(psimplex::SMatrix{N, 4}, qsimplex::SMatrix{N, 4}) where {N}
+    simplex = psimplex - qsimplex
     AB = simplex[:, 3] - simplex[:, 4]
     AC = simplex[:, 2] - simplex[:, 4]
     AD = simplex[:, 1] - simplex[:, 4]
@@ -98,30 +80,31 @@ function findtetrahedron(simplex::AbstractArray{<:AbstractFloat, 2}, idx::Array{
     BD = simplex[:, 1] - simplex[:, 3]
     AO = -simplex[:, 4]
     if (AB × AC) ⋅ AO < 0
-        findtriangle(simplex[:, [2, 3, 4]], idx[[2, 3, 4]])
+        idx = SMatrix{4, 3}(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+        return findsimplex(psimplex*idx, qsimplex*idx)
     elseif (AD × AB) ⋅ AO < 0
-        findtriangle(simplex[:, [3, 1, 4]], idx[[3, 1, 4]])
+        idx = SMatrix{4, 3}(0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+        return findsimplex(psimplex*idx, qsimplex*idx)
     elseif (AC × AD) ⋅ AO < 0
-        findtriangle(simplex[:, [1, 2, 4]], idx[[1, 2, 4]])
+        idx = @SMatrix zeros(M, M-1)
+        idx = SMatrix{4, 3}(1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1)
+        return findsimplex(psimplex*idx, qsimplex*idx)
     else
-        idx, AO, true
+        return psimplex, qsimplex, AO, true
     end
 end
 
 """
-    findcombination(simplex, vec)
+    findcombination(psimplex, qsimplex, vec)
 
 Compute the coefficients of a convex combination of the given
 simplex vertices that equals the vector `vec`. Project `vec`
 onto the closest vertex or edge of the simplex if no solution
 is available.
 """
-function findcombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
-    if size(simplex, 2) == 2
-        findlinecombination(simplex, vec)
-    elseif size(simplex, 2) == 3
-        findtrianglecombination(simplex, vec)
-    end
+function closestpoints(psimplex::SMatrix{N, M}, qsimplex::SMatrix{N, M}, dir2origin::SVector{N}) where {N, M}
+    λ = SVector{M}(cvxcombination(psimplex - qsimplex, dir2origin))
+    return psimplex*λ, qsimplex*λ
 end
 
 """
@@ -130,21 +113,22 @@ end
 Called by `findcombination()` to solve the convex combination
 problem for a line simplex defined by two points.
 """
-function findlinecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
+function cvxcombination(simplex::SMatrix{N, 1}, vec::SVector{N}) where {N}
+    return 1.0
+end
+
+function cvxcombination(simplex::SMatrix{N, 2}, vec::SVector{N}) where {N}
     AV = vec - simplex[:, 2]
     AB = simplex[:, 1] - simplex[:, 2]
     λ = (AB ⋅ AV)/(AB ⋅ AB)
-    λ = λ < 0 ? 0 : λ
-    [λ; 1.0 - λ]
+    if λ < 0
+        return 0.0, 1.0 - λ
+    else
+        return λ, 1.0 - λ
+    end
 end
 
-"""
-    findtrianglecombination(simplex, vec)
-
-Called by `findcombination()` to solve the convex combination
-problem for a triangle simplex defined by three points.
-"""
-function findtrianglecombination(simplex::AbstractArray{T, 2}, vec::AbstractArray{T, 1}) where {T<:AbstractFloat}
+function cvxcombination(simplex::SMatrix{N, 3}, vec::SVector{N}) where {N}
     AO = -simplex[:, 3]
     AV = vec - simplex[:, 3]
     AB = simplex[:, 2] - simplex[:, 3]
@@ -154,20 +138,23 @@ function findtrianglecombination(simplex::AbstractArray{T, 2}, vec::AbstractArra
     if (AC ⋅ AB * BC - AC ⋅ BC * AB) ⋅ AV > 0
         if AC ⋅ AV > 0
             dir = AO - proj(AC, AV)
-            λAC = findlinecombination(simplex[:, [1, 3]], -dir)
-            [λAC[1]; 0.0; λAC[2]]
+            idx = SMatrix{3, 2}(1, 0, 0, 0, 0, 1)
+            λAC1, λAC2 = cvxcombination(simplex*idx, -dir)
+            return λAC1, 0.0, λAC2
         else
             dir = AO - proj(AB, AV)
-            λAB = findlinecombination(simplex[:, [2, 3]], -dir)
-            [0.0; λAB[1]; λAB[2]]
+            idx = SMatrix{3, 2}(0, 0, 1, 0, 0, 1)
+            λAB1, λAB2 = cvxcombination(simplex*idx, -dir)
+            return 0.0, λAB1, λAB2
         end
     elseif (AB ⋅ BC * AB - AB ⋅ AB * BC) ⋅ AV > 0
         dir = AO - proj(AB, AV)
-        λAB = findlinecombination(simplex[:, [2, 3]], -dir)
-        [0.0; λAB[1]; λAB[2]]
+        idx = SMatrix{3, 2}(0, 0, 1, 0, 0, 1)
+        λAB1, λAB2 = cvxcombination(simplex*idx, -dir)
+        return 0.0, λAB1, λAB2
     else
         sABC = [AC AB]
         λ = (sABC' * sABC) \ (sABC' * AV)
-        vcat(λ, 1-sum(λ))
+        return λ[1], λ[2], 1-sum(λ)
     end
 end

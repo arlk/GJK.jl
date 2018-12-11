@@ -3,6 +3,7 @@ module GJK
 export gjk
 
 using LinearAlgebra
+using StaticArrays
 
 struct Result{T<:AbstractArray{<:AbstractFloat, 2}}
     status::Bool
