@@ -174,12 +174,12 @@ function findtetrahedron(psimplex::SMatrix{N}, qsimplex::SMatrix{N}) where {N}
 end
 
 """
-    closestpoints(psimplex, qsimplex, dir2origin)
+    nearestfromsimplex(psimplex, qsimplex, dir2origin)
 
-Compute the closest points between two simplexes given the
+Compute the nearest points between two simplexes given the
 direction to in origin in the Minkowski difference space
 """
-function closestpoints(psimplex::SMatrix{N, M}, qsimplex::SMatrix{N, M}, dir2origin::SVector{N}, sz::Int) where {N, M}
+function nearestfromsimplex(psimplex::SMatrix{N, M}, qsimplex::SMatrix{N, M}, dir2origin::SVector{N}, sz::Int) where {N, M}
     if sz == 1
         return psimplex[:, 1], qsimplex[:, 1]
     elseif sz == 2
@@ -195,12 +195,6 @@ function closestpoints(psimplex::SMatrix{N, M}, qsimplex::SMatrix{N, M}, dir2ori
     end
 end
 
-"""
-    cvxcombination(simplex, vec)
-
-Called by `closestpoints()` to solve the convex combination
-problem for a line or triangle simplex defined by two points.
-"""
 function linecombination(simplex::SMatrix{N}, vec::SVector{N}) where {N}
     AV = vec - simplex[:, 2]
     AB = simplex[:, 1] - simplex[:, 2]
