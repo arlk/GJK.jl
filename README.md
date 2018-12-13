@@ -4,34 +4,85 @@
 
 ![](https://github.com/arlk/GJK.jl/raw/master/readme/collision2d.gif)
 
-GJK.jl implements the Gilber-Johnson-Keerthi Algorithm from their seminal paper on fast collision detection. The following query types are planned for two convex polytopes:
- - Minimum distance computation (released)
- - Tolerance verification (coming up)
-
-The following queries will be explored at a later date (hopefully by June):
- - Boolean collision detection (no update so far)
- - Continous collision detection (no update so far)
+GJK.jl implements the Gilber-Johnson-Keerthi Algorithm from their seminal paper on fast collision detection. The following query types are available for two convex objects:
+ - Closest Points
+ - Minimum Distance
+ - Tolerance Verification
+ - Collision Detection
 
 ## Usage
 
-The package allows you to work with polytopes defined as an array of vertices (Using StaticArrays will considerably speed up the query evaluations), for example:
+The package (by default) allows you to work with polytopes defined as an array of vertices, for example:
 ```julia
-polyA = @SMatrix rand(100, 2)
-polyB = @SMatrix rand(100, 2) + 1.5
+julia> using StaticArrays
+julia> polyA = @SMatrix rand(2, 8)
+2×8 SArray{Tuple{2,8},Float64,2,16}:
+ 0.732619   0.327745   0.0390878  0.477455  0.627223  0.502666  0.0529193  0.0523722
+ 0.0513408  0.0634308  0.892253   0.88009   0.100901  0.564782  0.789238   0.307813
+
+julia> polyB = @SMatrix(rand(2, 5)) + 1.5
+2×8 SArray{Tuple{2,8},Float64,2,16}:
+ 2.18993  1.75404  1.51373  1.60674  1.67257  2.14208  1.97779  2.24657
+ 2.32708  1.92212  2.32769  1.69457  1.85003  1.57441  1.93884  2.45361
+
+julia> dir = @SVector(rand(2)) - 0.5
+2-element SArray{Tuple{2},Float64,1,2}:
+-0.4673435693835293
+ 0.4242237214159814
 ```
 
-The collision detection query can be performed simply by providing the polytope information and an initial search direction as:
+All the proximity queries can be performed simply by providing the polytope information and an initial searchdirection. In addition, `tolerance_verfication` requires an argument specifying the minimum tolerance of speration between two objects. :
 ```julia
-ret = gjk(polyA, polyB, SVector(0.0, 1.0))
+julia> using BenchmarkTools
+julia> @btime closest_points($polyA, $polyB, $dir)
+  172.901 ns (0 allocations: 0 bytes)
+([0.477455, 0.88009], [1.60674, 1.69457])
+
+julia> @btime minimum_distance($polyA, $polyB, $dir)
+  165.554 ns (0 allocations: 0 bytes)
+1.3923553706117722
+
+julia> @btime tolerance_verification($polyA, $polyB, $dir, $1.0)
+  99.324 ns (0 allocations: 0 bytes)
+true
+
+julia> @btime collision_detection($polyA, $polyB, $dir)
+  96.386 ns (0 allocations: 0 bytes)
+false
 ```
 
 If you want to use your custom convex objects, you can do so by extending the support function as:
 ```julia
 import GJK.support
-function GJK.support(obj::MyFancyShape{N, T}, dir::AbstractArray{T, 1}) where {T<:AbstractFloat}
+function GJK.support(obj::MyFancyShape, dir::SVector{N}) where {N}
   # do something
+  return supporting_point::SVector{N}
 end
 ```
+_Note:_ This is how I intended the package to be used, the vanilla `support` function is quite naive and only works for a StaticArray of vertices. Here are some examples for some geometries found in [GeometryTypes.jl](https://github.com/JuliaGeometry/GeometryTypes.jl):
+```julia
+import GJK.support
+using GeometryTypes: HyperSphere, HyperRectangle, HyperCube
+
+function GJK.support(rect::HyperRectangle{N, T}, dir::AbstractVector) where {N, T}
+    normvec = [if x > 0 1.0 else -1.0 end for x in normalize(dir./rect.widths, Inf)]
+    SVector{N}(rect.widths.*normvec/2.0 + rect.origin)
+end
+
+function GJK.support(cube::HyperCube{N, T}, dir::AbstractVector) where {N, T}
+    normvec = [if x > 0 1.0 else -1.0 end for x in normalize(dir, Inf)]
+    SVector{N}(cube.width.*normvec/2.0 + cube.origin)
+end
+
+function GJK.support(sphere::HyperSphere{N, T}, dir::AbstractVector) where {N, T}
+    SVector{N}(sphere.center + sphere.r*normalize(dir, 2))
+end
+```
+
+### Speed
+
+As the core GJK routines use StaticArrays, they are very well optimized and run quickly with no memory allocations. However, it is upto to the user to provide efficient code for the `support` and a good `init_dir` vector to squeeze the best performance from the functions.
+
 
 ## Examples
 
