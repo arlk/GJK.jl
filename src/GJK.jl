@@ -10,6 +10,6 @@ using StaticArrays
 
 include("support.jl")
 include("simplex.jl")
-include("gjk.jl")
+include("proximity.jl")
 
 end # module

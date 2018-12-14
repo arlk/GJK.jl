@@ -5,6 +5,6 @@ using StaticArrays
 
 @testset "GJK" begin
     include("support.jl")
-    #  include("simplex.jl")
-    include("gjk.jl")
+    include("simplex.jl")
+    include("proximity.jl")
 end
