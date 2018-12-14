@@ -218,18 +218,18 @@ function trianglecombination(simplex::SMatrix{N}, vec::SVector{N}) where {N}
             dir = AO - proj(AC, AV)
             idx = SMatrix{3, 2}(1, 0, 0, 0, 0, 1)
             simplex = pickcolumns(simplex, 1, 3)
-            λAC1, λAC2 = cvxcombination(simplex, -dir)
+            λAC1, λAC2 = linecombination(simplex, -dir)
             return λAC1, 0.0, λAC2
         else
             dir = AO - proj(AB, AV)
             simplex = pickcolumns(simplex, 2, 3)
-            λAB1, λAB2 = cvxcombination(simplex, -dir)
+            λAB1, λAB2 = linecombination(simplex, -dir)
             return 0.0, λAB1, λAB2
         end
     elseif (AB ⋅ BC * AB - AB ⋅ AB * BC) ⋅ AV > 0
         dir = AO - proj(AB, AV)
         simplex = pickcolumns(simplex, 2, 3)
-        λAB1, λAB2 = cvxcombination(simplex, -dir)
+        λAB1, λAB2 = linecombination(simplex, -dir)
         return 0.0, λAB1, λAB2
     else
         sABC = [AC AB]
