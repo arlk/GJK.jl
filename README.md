@@ -64,18 +64,34 @@ _Note:_ This is how I intended the package to be used, the vanilla `support` fun
 import GJK.support
 using GeometryTypes: HyperSphere, HyperRectangle, HyperCube
 
-function GJK.support(rect::HyperRectangle{N, T}, dir::AbstractVector) where {N, T}
-    normvec = [if x > 0 1.0 else -1.0 end for x in normalize(dir./rect.widths, Inf)]
-    SVector{N}(rect.widths.*normvec/2.0 + rect.origin)
-end
-
-function GJK.support(cube::HyperCube{N, T}, dir::AbstractVector) where {N, T}
-    normvec = [if x > 0 1.0 else -1.0 end for x in normalize(dir, Inf)]
-    SVector{N}(cube.width.*normvec/2.0 + cube.origin)
-end
-
 function GJK.support(sphere::HyperSphere{N, T}, dir::AbstractVector) where {N, T}
     SVector{N}(sphere.center + sphere.r*normalize(dir, 2))
+end
+
+@generated function GJK.support(rect::HyperRectangle{N, T}, dir::AbstractVector) where {N, T}
+    exprs = Array{Expr}(undef, (N,))
+    for i = 1:N
+        exprs[i] = :(rect.widths[$i]*(dir[$i] ≥ 0.0 ? 1.0 : -1.0)/2.0 + rect.origin[$i])
+    end
+
+    return quote
+        Base.@_inline_meta
+        @inbounds elements = tuple($(exprs...))
+        @inbounds return SVector{N, T}(elements)
+    end
+end
+
+@generated function GJK.support(cube::HyperCube{N, T}, dir::AbstractVector) where {N, T}
+    exprs = Array{Expr}(undef, (N,))
+    for i = 1:N
+        exprs[i] = :(cube.width*(dir[$i] ≥ 0.0 ? 1.0 : -1.0)/2.0 + cube.origin[$i])
+    end
+
+    return quote
+        Base.@_inline_meta
+        @inbounds elements = tuple($(exprs...))
+        @inbounds return SVector{N, T}(elements)
+    end
 end
 ```
 
