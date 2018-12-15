@@ -3,8 +3,16 @@ using QHull: chull
 using GJK: closest_points
 using StaticArrays
 
+function randdisk(sz)
+    r = rand(sz)
+    θ = 2*π*rand(sz)
+    x = sqrt.(r).*cos.(θ)
+    y = sqrt.(r).*sin.(θ)
+    return hcat(x, y)
+end
+
 function randomcvx(sz::Int)
-    pts = rand(sz, 2) .- 0.5
+    pts = randdisk(sz)
     ch = chull(pts)
     sz = length(ch.vertices)
     return randomcvx(ch.points[ch.vertices, :], Val(sz))
@@ -35,10 +43,10 @@ end
 
 function frame(scene, framenumber)
     global polyA, polyB, polyC
-    centerA = SMatrix{2, 1}( 0.,-1/√2.)
-    centerB = SMatrix{2, 1}( 1., 1/√2.)
-    centerC = SMatrix{2, 1}(-1., 1/√2.)
-    scale(100)
+    centerA = SMatrix{2, 1}( 0.,-√2.)
+    centerB = SMatrix{2, 1}( 2., √2.)
+    centerC = SMatrix{2, 1}(-2., √2.)
+    scale(50)
 
     # draw polygons
     sethue(Colors.RGB(96/255,173/255,81/255))
