@@ -26,9 +26,9 @@ polyA = randomcvx(35)
 polyB = randomcvx(35)
 polyC = randomcvx(35)
 
-function drawpoly(polygon, θ, center, scale)
+function drawpoly(polygon, θ, center)
     p = transform2(θ, center)*polygon
-    plux = [Point((scale*p[1:2,i])...) for i in 1:size(p, 2)]
+    plux = [Point(p[1:2,i]...) for i in 1:size(p, 2)]
     poly(plux, :fill)
     return p
 end
@@ -38,19 +38,19 @@ function frame(scene, framenumber)
     centerA = SMatrix{2, 1}( 0.,-1/√2.)
     centerB = SMatrix{2, 1}( 1., 1/√2.)
     centerC = SMatrix{2, 1}(-1., 1/√2.)
-    scale = 100.0
+    scale(100)
 
     # draw polygons
     sethue(Colors.RGB(96/255,173/255,81/255))
-    pA = drawpoly(polyA, deg2rad(-framenumber/2), centerA, scale)
+    pA = drawpoly(polyA, deg2rad(-framenumber/2), centerA)
     sethue(Colors.RGB(170/255,121/255,193/255))
-    pB = drawpoly(polyB, deg2rad(framenumber), centerB, scale)
+    pB = drawpoly(polyB, deg2rad(framenumber), centerB)
     sethue(Colors.RGB(213/255,99/255,92/255))
-    pC = drawpoly(polyC, deg2rad(framenumber), centerC, scale)
+    pC = drawpoly(polyC, deg2rad(framenumber), centerC)
 
     # get closest points between objects
     cp = map(p -> closest_points(p[1], p[2], SVector{2}(1., 1.)), [[pA, pB], [pB, pC], [pC, pA]])
-    cp = map(p -> map(c -> Point((scale*c).data...), p), cp)
+    cp = map(p -> map(c -> Point(c.data...), p), cp)
 
     # draw line segments
     sethue(Colors.RGB(102/255,130/225,223/255))
@@ -58,7 +58,7 @@ function frame(scene, framenumber)
 
     # draw points
     sethue("blue")
-    map(p -> map(c -> circle(c, 4, :fill), p), cp)
+    map(p -> map(c -> circle(c, 0.04, :fill), p), cp)
 end
 
 animate(logo, [
