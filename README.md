@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/arlk/GJK.jl.svg?branch=master)](https://travis-ci.org/arlk/GJK.jl) [![codecov](https://codecov.io/gh/arlk/GJK.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/arlk/GJK.jl)
 
+# This package has moved to [ConvexBodyProximityQueries.jl](https://github.com/arlk/ConvexBodyProximityQueries.jl).
+
 ![](https://github.com/arlk/GJK.jl/raw/master/readme/logo.gif)
 
 GJK.jl implements the Gilber-Johnson-Keerthi Algorithm from their seminal paper on fast collision detection. The following query types are available for two convex objects:
